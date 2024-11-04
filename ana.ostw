@@ -46,11 +46,3 @@ if(EventAbility() == Button.Ability1)
         SetStatus(Victim(),null,Status.Asleep,3);
     }
 }
-
-rule: "Ana Nano Heal"
-Event.OnHealingDealt
-Player.Ana
-if(EventAbility() == Button.Ultimate)
-{
-    Damage(Healee(),null,EventHealing()*2);
-}

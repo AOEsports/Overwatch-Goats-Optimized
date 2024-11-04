@@ -4,8 +4,9 @@ void rein_setup()
     //SetDamageDealt(EventPlayer(),25); done in custom game settings but listed here as well
     //shield health 2000
     //shield regen 200 up from 144
-    SetMaxHealth(EventPlayer(),(2000/1600)*100);
+    SetMaxHealth(EventPlayer(),(2000/1500)*100);
     SetKnockbackReceived(EventPlayer(),166);
+    
     //armor 200
     //health 300
     base_armor = 200;

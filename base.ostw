@@ -138,6 +138,7 @@ rule: "Spawn in"
 Event.OngoingPlayer
 if(HeroOf(EventPlayer()) != current_hero)
 {
+    setup_complete = false;
     SetAbility1Enabled(EventPlayer(),true);
     SetAbility2Enabled(EventPlayer(),true);
     SetJumpVerticalSpeed(EventPlayer(),100);
@@ -149,6 +150,7 @@ if(HeroOf(EventPlayer()) != current_hero)
     tick_rate = 1/62.5;
     DestroyHudText(zarya_hud_ref);
     SetKnockbackReceived(EventPlayer(),100);
+    RemoveAllHealthPoolsFromPlayer();
     //remove health pools
     DestroyHudText(debug_text);
     if(debug_mode)

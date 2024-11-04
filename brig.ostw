@@ -36,17 +36,18 @@ playervar define brig_shield_time;
 
 void brig_setup()
 {
+    SetMaxHealth(EventPlayer(),(600/250)*100);
+
     role = 0;
-    ult_charge = 0;
-    max_ult_charge = 2500;
     brig_passive_ult_gain = WorkshopSettingReal("Settings","Brig Passive Ult Gain",1,0,2,0);
     brig_ult_gain_scalar = WorkshopSettingReal("Settings","Brig Ult Scalar",1,0,2,1);
     self_move_speed = 100;
     base_armor = 50;
-    base_health = 199.9;
+    base_health = 200;
     base_shield = 0;
     current_hero = Hero.Brigitte;
     brig_shield_location = EyePosition(EventPlayer())+FacingDirectionOf(EventPlayer())*0.85;
+    
 
     while(MaxHealthOfType(EventPlayer(),HealthType.Health) != base_health || MaxHealthOfType(EventPlayer(),HealthType.Armor) != base_armor || MaxHealthOfType(EventPlayer(),HealthType.Shields) != base_shield)
     {
@@ -82,110 +83,18 @@ Player.Brigitte
         Damage(temp_players,null,0.01);
     }
 
-    if(IsGameInProgress())
-    {
-        ult_charge += 0.1*brig_passive_ult_gain;
-    }
-    
-    if(ult_charge > max_ult_charge)
-    {
-        ult_charge = max_ult_charge;
-    }
-    SetUltimateCharge(EventPlayer(),Min(99,ult_charge/max_ult_charge*100));
-
-
-    if(IsButtonHeld(EventPlayer(),Button.Ultimate) && UltimateChargePercent(EventPlayer()) >= 98 && brig_rally_ref == null && IsAlive())
-    {
-        SetUltimateCharge(EventPlayer(),0);
-        ult_charge = -9999;
-        brig_rally_ref = CreateEffect(AllPlayers(),Effect.Ring,Color.Yellow,PositionOf(),10,EffectRev.PositionAndRadius);
-        brig_rally_timer = 10;
-        self_move_speed += 30;
-        BigMessage(AllPlayers(OppositeTeamOf(TeamOf(EventPlayer()))),"RAID BOSS INCOMING");
-        BigMessage(AllPlayers(TeamOf(EventPlayer())),"RALLY TO ME");
-        PlayEffect(AllPlayers(),PlayEffect.BuffExplosionSound,Color.White,EventPlayer(),100);
-        SetMoveSpeed(EventPlayer(),self_move_speed);
-        if(TeamOf(EventPlayer()) == Team.Team1)
-        {
-            async brig_rally_1();
-        }
-        else
-        {
-            async brig_rally_2();
-        }
-        
-    }
-
-    if(IsBetweenRounds() || !IsGameInProgress())
-    {
-        ult_charge = 0;
-    }
 
     //brig shield bash distance
     if(IsButtonHeld(EventPlayer(),Button.SecondaryFire) && IsFiringPrimary())
     {
-        self_move_speed -= 50;
+        self_move_speed += 50;
         SetMoveSpeed(EventPlayer(),self_move_speed);
         WaitUntil(!IsFiringPrimary(),1);
-        self_move_speed += 50;
+        self_move_speed -= 50;
         SetMoveSpeed(EventPlayer(),self_move_speed);
     }
     Wait(0.12);
     LoopIf(HeroOf(EventPlayer()) == Hero.Brigitte);
-}
-
-void brig_rally_1() playervar "Brig Rally 1"
-{
-    define list_of_players = PlayersWithinRadius(PositionOf(EventPlayer()),10,TeamOf(EventPlayer()),RadiusLOS.Surfaces);
-    for(define i = 0; i < 6; i++)
-    {
-        if(list_of_players[i] == null)
-        {
-            break;
-        }
-        list_of_players[i].brig_rally_armor_amount += 15;
-        if(list_of_players[i].brig_rally_armor_amount > 150)
-        {
-            list_of_players[i].brig_rally_armor_amount = 150;
-        }
-        RemoveHealthPoolFromPlayer(list_of_players[i].brig_rally_armor_ref);
-        list_of_players[i].brig_rally_armor_ref = AddHealthPoolToPlayer(list_of_players[i],HealthType.Armor,list_of_players[i].brig_rally_armor_amount,false,true);
-    }
-    Wait(1/2);
-    brig_rally_timer -= 0.5;
-    LoopIf(brig_rally_timer != 0);
-    DestroyEffect(brig_rally_ref);
-    brig_rally_ref = null;
-    ult_charge = 0;
-    self_move_speed -= 30;
-    SetMoveSpeed(EventPlayer(),self_move_speed);
-}
-
-void brig_rally_2() playervar "Brig Rally 2"
-{
-    define list_of_players = PlayersWithinRadius(PositionOf(EventPlayer()),10,TeamOf(EventPlayer()),RadiusLOS.Surfaces);
-    for(define i = 0; i < 6; i++)
-    {
-        if(list_of_players[i] == null)
-        {
-            break;
-        }
-        list_of_players[i].brig_rally_armor_amount += 15;
-        if(list_of_players[i].brig_rally_armor_amount > 150)
-        {
-            list_of_players[i].brig_rally_armor_amount = 150;
-        }
-        RemoveHealthPoolFromPlayer(list_of_players[i].brig_rally_armor_ref);
-        list_of_players[i].brig_rally_armor_ref = AddHealthPoolToPlayer(list_of_players[i],HealthType.Armor,list_of_players[i].brig_rally_armor_amount,false,true);
-    }
-    Wait(1/2);
-    brig_rally_timer -= 0.5;
-    LoopIf(brig_rally_timer != 0);
-    DestroyEffect(brig_rally_ref);
-    brig_rally_ref = null;
-    ult_charge = 0;
-    self_move_speed -= 30;
-    SetMoveSpeed(EventPlayer(),self_move_speed);
 }
 
 rule:"Brig: Reduce Armor From Damage"
@@ -211,8 +120,9 @@ Event.OnDamageDealt
 Player.Brigitte
 if(EventDamage() != null)
 {
-    //SmallMessage(AllPlayers(),"{0}:{1}".Format([EventAbility(),IsButtonHeld(Attacker(),Button.SecondaryFire)]));
-    if(EventAbility() == Button.PrimaryFire && (IsButtonHeld(EventPlayer(),Button.SecondaryFire) ||brig_shield_time < 0.25) && AbilityCooldown(Attacker(),Button.PrimaryFire) == 0)
+    if(EventAbility() == Button.PrimaryFire && 
+        (IsButtonHeld(EventPlayer(),Button.SecondaryFire) || brig_shield_time < 0.25) &&
+         AbilityCooldown(Attacker(),Button.PrimaryFire) == 0 && AbilityCooldown(Attacker(),Button.SecondaryFire) == 0)
     {
         SetStatus(Victim(),Attacker(),Status.Stunned,1);
         SetAbilityCooldown(EventPlayer(),Button.PrimaryFire,6);
@@ -220,10 +130,6 @@ if(EventDamage() != null)
     else if(brig_inspire == 0)
     {
         brig_inspire = 1;
-    }
-    if(IsGameInProgress())
-    {
-        ult_charge += EventDamage()*brig_ult_gain_scalar;
     }
     
 }
@@ -250,7 +156,6 @@ if(EventAbility() == Button.Ability2)
     define temp_heal = 150;
     temp_heal -= Min(MaxHealth(Healee()) - Health(Healee()),150);
     Heal(Healee(),Healer(),150 - temp_heal);
-    ult_charge += 150 - temp_heal;
     if(temp_heal > 75)
     {
         temp_heal = 75;
@@ -260,12 +165,4 @@ if(EventAbility() == Button.Ability2)
     RemoveHealthPoolFromPlayer(brig_pack_ref);
     Wait(1);
     SetAbilityCharge(EventPlayer(),Button.Ability2,3);
-}
-rule: "Brig Healing Ult Tracking"
-Event.OnHealingDealt
-Player.Brigitte
-if(EventAbility() != Button.Ability2)
-if(IsGameInProgress())
-{
-    ult_charge += EventHealing()*brig_ult_gain_scalar;
 }
