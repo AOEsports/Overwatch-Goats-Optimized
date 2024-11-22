@@ -15,7 +15,7 @@ void zen_setup()
     //CreateHudText(AllPlayers(),null,null,discord_target,Location.Left,0,Color.White,Color.White,Color.White,HudTextRev.String,Spectators.VisibleNever);
     while(MaxHealthOfType(EventPlayer(),HealthType.Health) != base_health || MaxHealthOfType(EventPlayer(),HealthType.Armor) != base_armor || MaxHealthOfType(EventPlayer(),HealthType.Shields) != base_shield)
     {
-        apply_custom_health_fuction();
+        apply_custom_health();
         Wait(0.1);
     }
 }
@@ -25,19 +25,6 @@ rule: "Zen Action"
 Event.OngoingPlayer
 Player.Zenyatta
 {
-    /*
-    if(IsUsingAbility2() && discord_target == null)
-    {
-        define temp_list = AllPlayers(OppositeTeamOf(TeamOf(EventPlayer())));
-        Damage(temp_list,EventPlayer(),0.05);
-    }
-    else if(!IsUsingAbility2() && discord_target != null)
-    {
-        SmallMessage(AllPlayers(),"Discord Cleared");
-        StopDamageModification(discord_ref);
-        discord_target = null;
-    }
-    */
     if(current_shield_health < max_shield_health)
     {
         time_since_damage_shield += 1/4;
@@ -54,7 +41,6 @@ Player.Zenyatta
 
     Wait(1/4);
     LoopIf(HeroOf(EventPlayer()) == Hero.Zenyatta);
-    
 }
 
 rule: "Zen Took Damage"
@@ -65,26 +51,3 @@ if(EventAbility() != null)
 	time_since_damage_shield = 0;
 	current_shield_health = HealthOfType(EventPlayer(),HealthType.Shields);
 }
-/*
-rule: "Zen Damage"
-Event.OnDamageDealt
-Player.Zenyatta
-if(EventAbility() == null)
-{
-    //base damage = 48
-    //armor damage = 36
-
-
-
-    
-    //discord damage = 60
-    //discord armor damage = 24
-    
-    if(EventDamage() == 0.06 || EventDamage() == 0.024)
-    {
-        SmallMessage(AllPlayers(),"Discord Set");
-        discord_target = Victim();
-        discord_ref = StartDamageModification(Victim(),AllPlayers(),104,DamageModificationRev.None);
-    }
-}
-*/

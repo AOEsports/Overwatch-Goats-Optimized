@@ -5,32 +5,21 @@ void rein_setup()
     //shield health 2000
     //shield regen 200 up from 144
     SetMaxHealth(EventPlayer(),(2000/1500)*100);
-    SetKnockbackReceived(EventPlayer(),166);
+    SetKnockbackReceived(EventPlayer(),140);
     
     //armor 200
-    //health 300
+    //health 350
     base_armor = 200;
     base_shield = 0;
-    base_health = 300;
+    base_health = 350;
     self_move_speed = 100;
 
-    //hammer damage 75
-
-    //fire strike 1
-    //fire strike damage 100
-    
-    //charge 300 damage
-    //cooldown 10
-
-    //earthshatter 50 damage flat
-
-    //no tank passive
     role = 1;
     current_hero = Hero.Reinhardt;
 
     while(MaxHealthOfType(EventPlayer(),HealthType.Health) != base_health || MaxHealthOfType(EventPlayer(),HealthType.Armor) != base_armor || MaxHealthOfType(EventPlayer(),HealthType.Shields) != base_shield)
     {
-        apply_custom_health_fuction();
+        apply_custom_health();
         Wait(0.1);
     }
     //CreateHudText(EventPlayer(),"{0}\n{1}\n{2}".Format([IsButtonHeld(EventPlayer(),Button.Ultimate),UltimateChargePercent(EventPlayer()),ServerLoadPeak()]),null,null,Location.Left,0,Color.White,Color.White,Color.White,HudTextRev.String,Spectators.VisibleAlways);
@@ -78,11 +67,11 @@ if(EventDamage() != null)
     {
         if(EventDamage() > 20)
         {
-            Damage(Victim(),Attacker(),848);//direct pin damage
+            Damage(Victim(),Attacker(),848); //direct pin damage
         }
         else
         {
-            Damage(Victim(),Attacker(),150);//glance pin damage
+            Damage(Victim(),Attacker(),150); //glance pin damage
         }
     }
     else if(EventAbility() == Button.Ultimate && !EventWasCriticalHit())

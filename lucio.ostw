@@ -24,7 +24,7 @@ void lucio_setup()
 
     while(MaxHealthOfType(EventPlayer(),HealthType.Health) != base_health || MaxHealthOfType(EventPlayer(),HealthType.Armor) != base_armor || MaxHealthOfType(EventPlayer(),HealthType.Shields) != base_shield)
     {
-        apply_custom_health_fuction();
+        apply_custom_health();
         Wait(0.1);
     }
 }

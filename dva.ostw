@@ -30,7 +30,7 @@ void dva_setup()
             break;
         }
     }
-    SetKnockbackReceived(EventPlayer(),166);
+    SetKnockbackReceived(EventPlayer(),140);
     dva_state = 0;
 }
 

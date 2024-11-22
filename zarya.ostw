@@ -3,26 +3,21 @@ import "base.ostw";
 playervar define zarya_hud_ref;
 playervar define zarya_shield_cooldown_1;
 playervar define zarya_shield_cooldown_2;
-//200 health
-//200 shield
-//
-
 
 void zarya_setup()
 {
     base_health = 200;
     base_shield = 200;
-    zarya_hud_ref = CreateHudText(EventPlayer(),null,null,"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n    {0}                                                                    {1}             {2}".Format(["                                                                                                                      ","                                                                                "+RoundToInteger(zarya_shield_cooldown_1),RoundToInteger(zarya_shield_cooldown_2)]),Location.Left,1,Color.White,Color.Black,Color.White,HudTextRev.String,Spectators.VisibleNever);
+    zarya_hud_ref = CreateHudText(EventPlayer(),null,null,"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n    {0}                                                                    {1}             {2}".Format(["                                                                                                                      ","                                                                                "+RoundToInteger(zarya_shield_cooldown_1),RoundToInteger(zarya_shield_cooldown_2)]),Location.Left,1,Color.White,Color.Black,Color.White,HudTextRev.String,Spectators.VisibleAlways);
     tick_rate = (1/62.5)*15;
     role = 1;
     max_shield_health = 200;
-    SetKnockbackReceived(EventPlayer(),166);
+    SetKnockbackReceived(EventPlayer(),140);
     current_shield_health = HealthOfType(EventPlayer(),HealthType.Shields);
-    //SetMaxHealth(EventPlayer(),100);
 
-    while(MaxHealthOfType(EventPlayer(),HealthType.Health) != base_health || MaxHealthOfType(EventPlayer(),HealthType.Armor) != base_armor || MaxHealthOfType(EventPlayer(),HealthType.Shields) != base_shield)
+    while (MaxHealthOfType(EventPlayer(),HealthType.Health) != base_health || MaxHealthOfType(EventPlayer(),HealthType.Armor) != base_armor || MaxHealthOfType(EventPlayer(),HealthType.Shields) != base_shield) 
     {
-        apply_custom_health_fuction();
+        apply_custom_health();
         Wait(0.1);
     }
 }
@@ -31,6 +26,7 @@ rule: "Zarya Action"
 Event.OngoingPlayer
 Player.Zarya
 {
+
     if(IsUsingAbility1() && zarya_shield_cooldown_1 == 0)
     {
         MinWait();
@@ -47,7 +43,6 @@ Player.Zarya
         zarya_shield_cooldown_1 = 0;
         SetAbility1Enabled(EventPlayer(), true);
     }
-
 
     if(IsUsingAbility2() && zarya_shield_cooldown_2 == 0)
     {

@@ -17,7 +17,6 @@ import "base.ostw";
 
 //reduced travel distance from 12->7 meters
 
-
 //melee damage 45->35
 playervar define ult_charge;
 playervar define max_ult_charge;
@@ -30,33 +29,36 @@ playervar define brig_rally_ref;
 playervar define brig_rally_timer;
 playervar define brig_rally_armor_ref;
 playervar define brig_rally_armor_amount;
-playervar define brig_passive_ult_gain;
-playervar define brig_ult_gain_scalar;
 playervar define brig_shield_time;
 
+playervar define brig_passive_ult_gain;
+playervar define brig_ult_gain_scalar;
 void brig_setup()
 {
     SetMaxHealth(EventPlayer(),(600/250)*100);
 
-    role = 0;
+    ult_charge = 0;
+    max_ult_charge = 2500;
+
     brig_passive_ult_gain = WorkshopSettingReal("Settings","Brig Passive Ult Gain",1,0,2,0);
     brig_ult_gain_scalar = WorkshopSettingReal("Settings","Brig Ult Scalar",1,0,2,1);
+
+    role = 0;
     self_move_speed = 100;
+    
     base_armor = 50;
     base_health = 200;
     base_shield = 0;
+
     current_hero = Hero.Brigitte;
     brig_shield_location = EyePosition(EventPlayer())+FacingDirectionOf(EventPlayer())*0.85;
     
-
     while(MaxHealthOfType(EventPlayer(),HealthType.Health) != base_health || MaxHealthOfType(EventPlayer(),HealthType.Armor) != base_armor || MaxHealthOfType(EventPlayer(),HealthType.Shields) != base_shield)
     {
-        apply_custom_health_fuction();
+        MinWait();
+        apply_custom_health();
         Wait(0.1);
     }
-    //CreateBeamEffect(EventPlayer(),BeamType.GrappleBeam,brig_shield_location,brig_shield_location+FacingDirectionOf(EventPlayer())*max_ult_charge,Color.White,EffectRev.PositionAndRadius);
-    //CreateHudText(EventPlayer(),"{0} {1}".Format([ult_charge,max_ult_charge]),null,null,Location.Left,0,Color.White,Color.White,Color.White,HudTextRev.String,Spectators.VisibleAlways);
-    //ud_ref = CreateHudText(EventPlayer(),null,null,"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n{0}{1}{2}".Format(["                                                                                                                 ","                                                              ",RoundToInteger( EventPlayer().ult_charge/EventPlayer().max_ult_charge*100)]),Location.Left,0,Color.White,Color.Black,Color.White,HudTextRev.String,Spectators.VisibleNever);
 }
 
 rule: "Brig Action"
@@ -83,6 +85,25 @@ Player.Brigitte
         Damage(temp_players,null,0.01);
     }
 
+    if(IsGameInProgress())
+    {
+        ult_charge += 0.1*brig_passive_ult_gain;
+    }
+    
+    if(ult_charge > max_ult_charge)
+    {
+        ult_charge = max_ult_charge;
+    }
+    SetUltimateCharge(EventPlayer(),Min(100,ult_charge/max_ult_charge*100));
+
+    if(IsBetweenRounds() || !IsGameInProgress())
+    {
+        ult_charge = 0;
+    }
+
+    if (IsUsingUltimate() && IsAlive()) {
+        ult_charge = 0;
+    }
 
     //brig shield bash distance
     if(IsButtonHeld(EventPlayer(),Button.SecondaryFire) && IsFiringPrimary())
@@ -127,6 +148,10 @@ if(EventDamage() != null)
         SetStatus(Victim(),Attacker(),Status.Stunned,1);
         SetAbilityCooldown(EventPlayer(),Button.PrimaryFire,6);
     }
+    if(IsGameInProgress())
+    {
+        ult_charge += EventDamage()*brig_ult_gain_scalar;
+    }
     else if(brig_inspire == 0)
     {
         brig_inspire = 1;
@@ -156,6 +181,7 @@ if(EventAbility() == Button.Ability2)
     define temp_heal = 150;
     temp_heal -= Min(MaxHealth(Healee()) - Health(Healee()),150);
     Heal(Healee(),Healer(),150 - temp_heal);
+    ult_charge += 150 - temp_heal;
     if(temp_heal > 75)
     {
         temp_heal = 75;
@@ -165,4 +191,13 @@ if(EventAbility() == Button.Ability2)
     RemoveHealthPoolFromPlayer(brig_pack_ref);
     Wait(1);
     SetAbilityCharge(EventPlayer(),Button.Ability2,3);
+}
+
+rule: "Brig Healing Ult Tracking"
+Event.OnHealingDealt
+Player.Brigitte
+if(EventAbility() != Button.Ability2)
+if(IsGameInProgress())
+{
+    ult_charge += EventHealing()*brig_ult_gain_scalar;
 }

@@ -10,6 +10,7 @@ playervar define current_hero;
 playervar define tick_rate;
 playervar define setup_complete;
 playervar define debug_text;
+playervar define is_alive;
 globalvar define debug_mode;
 playervar define armor_tracking;
 playervar define current_shield_health;
@@ -33,96 +34,9 @@ import "zen.ostw";
 rule: "Hud Text"
 Event.OngoingGlobal
 {
-    
     debug_mode = false;
-    DisableInspectorRecording();
-    //Wait(5);
-    //SetMatchTime(5);
-    //Wait(7);
-    //SetMatchTime(1);
-    //Wait(2);
-    //SetMatchTime(5);
-    if(debug_mode)
-    {
-        CreateHudText(null,null,null,"Server Load: {0}\nAverage: {1}\nPeak: {2}".Format([average_value,ServerLoadAverage(),ServerLoadPeak()]),Location.Right,0,Color.White,Color.White,Color.White,HudTextRev.VisibleToAndString,Spectators.VisibleAlways);
-        //CreateHudText(null,null,null,"{0}".Format([MaxHealth(PlayersInSlot(0,Team.Team1))/(PlayersInSlot(0,Team.Team1).base_armor+PlayersInSlot(0,Team.Team1).base_health+PlayersInSlot(0,Team.Team1).base_shield)]),Location.Left,0,Color.White,Color.White,Color.Blue,HudTextRev.String,Spectators.VisibleAlways);
-        //CreateHudText(null,null,null,"{0}".Format([MaxHealth(PlayersInSlot(1,Team.Team1))/(PlayersInSlot(1,Team.Team1).base_armor+PlayersInSlot(1,Team.Team1).base_health+PlayersInSlot(1,Team.Team1).base_shield)]),Location.Left,0,Color.White,Color.White,Color.Blue,HudTextRev.String,Spectators.VisibleAlways);
-        //CreateHudText(null,null,null,"{0}".Format([MaxHealth(PlayersInSlot(2,Team.Team1))/(PlayersInSlot(2,Team.Team1).base_armor+PlayersInSlot(2,Team.Team1).base_health+PlayersInSlot(2,Team.Team1).base_shield)]),Location.Left,0,Color.White,Color.White,Color.Blue,HudTextRev.String,Spectators.VisibleAlways);
-        //CreateHudText(null,null,null,"{0}".Format([MaxHealth(PlayersInSlot(3,Team.Team1))/(PlayersInSlot(3,Team.Team1).base_armor+PlayersInSlot(3,Team.Team1).base_health+PlayersInSlot(3,Team.Team1).base_shield)]),Location.Left,0,Color.White,Color.White,Color.Blue,HudTextRev.String,Spectators.VisibleAlways);
-        //CreateHudText(null,null,null,"{0}".Format([MaxHealth(PlayersInSlot(4,Team.Team1))/(PlayersInSlot(4,Team.Team1).base_armor+PlayersInSlot(4,Team.Team1).base_health+PlayersInSlot(4,Team.Team1).base_shield)]),Location.Left,0,Color.White,Color.White,Color.Blue,HudTextRev.String,Spectators.VisibleAlways);
-        //CreateHudText(null,null,null,"{0}".Format([MaxHealth(PlayersInSlot(5,Team.Team1))/(PlayersInSlot(5,Team.Team1).base_armor+PlayersInSlot(5,Team.Team1).base_health+PlayersInSlot(5,Team.Team1).base_shield)]),Location.Left,0,Color.White,Color.White,Color.Blue,HudTextRev.String,Spectators.VisibleAlways);
-
-        //CreateHudText(null,null,null,"{0}".Format([MaxHealth(PlayersInSlot(0,Team.Team2))/(PlayersInSlot(0,Team.Team2).base_armor+PlayersInSlot(0,Team.Team2).base_health+PlayersInSlot(0,Team.Team2).base_shield)]),Location.Left,0,Color.White,Color.White,Color.Red,HudTextRev.String,Spectators.VisibleAlways);
-        //CreateHudText(null,null,null,"{0}".Format([MaxHealth(PlayersInSlot(1,Team.Team2))/(PlayersInSlot(1,Team.Team2).base_armor+PlayersInSlot(1,Team.Team2).base_health+PlayersInSlot(1,Team.Team2).base_shield)]),Location.Left,0,Color.White,Color.White,Color.Red,HudTextRev.String,Spectators.VisibleAlways);
-        //CreateHudText(null,null,null,"{0}".Format([MaxHealth(PlayersInSlot(2,Team.Team2))/(PlayersInSlot(2,Team.Team2).base_armor+PlayersInSlot(2,Team.Team2).base_health+PlayersInSlot(2,Team.Team2).base_shield)]),Location.Left,0,Color.White,Color.White,Color.Red,HudTextRev.String,Spectators.VisibleAlways);
-        //CreateHudText(null,null,null,"{0}".Format([MaxHealth(PlayersInSlot(3,Team.Team2))/(PlayersInSlot(3,Team.Team2).base_armor+PlayersInSlot(3,Team.Team2).base_health+PlayersInSlot(3,Team.Team2).base_shield)]),Location.Left,0,Color.White,Color.White,Color.Red,HudTextRev.String,Spectators.VisibleAlways);
-        //CreateHudText(null,null,null,"{0}".Format([MaxHealth(PlayersInSlot(4,Team.Team2))/(PlayersInSlot(4,Team.Team2).base_armor+PlayersInSlot(4,Team.Team2).base_health+PlayersInSlot(4,Team.Team2).base_shield)]),Location.Left,0,Color.White,Color.White,Color.Red,HudTextRev.String,Spectators.VisibleAlways);
-        //CreateHudText(null,null,null,"{0}".Format([MaxHealth(PlayersInSlot(5,Team.Team2))/(PlayersInSlot(5,Team.Team2).base_armor+PlayersInSlot(5,Team.Team2).base_health+PlayersInSlot(5,Team.Team2).base_shield)]),Location.Left,0,Color.White,Color.White,Color.Red,HudTextRev.String,Spectators.VisibleAlways);
-    }
+    EnableInspectorRecording();
 }
-
-rule: "On Death"
-Event.OngoingPlayer
-{
-    ult_charge = 0;
-    brig_rally_timer = 0;
-}
-/*
-rule: "Random Actions"
-Event.OngoingPlayer
-{
-    WaitUntil(IsOnObjective(EventPlayer()),1000);
-    define temp = RandomInteger(0,8);
-    switch(temp)
-    {
-        case 0:
-        {
-            StartHoldingButton(EventPlayer(),Button.Ability1);
-        }
-        case 1:
-        {
-            StartHoldingButton(EventPlayer(),Button.Ability2);
-        }
-        case 2:
-        {
-            StartHoldingButton(EventPlayer(),Button.Crouch);
-        }
-        case 3:
-        {
-            StartHoldingButton(EventPlayer(),Button.Jump);
-        }
-        case 4:
-        {
-            StartHoldingButton(EventPlayer(),Button.Melee);
-        }
-        case 5:
-        {
-            StartHoldingButton(EventPlayer(),Button.PrimaryFire);
-        }
-        case 6:
-        {
-            StartHoldingButton(EventPlayer(),Button.SecondaryFire);
-        }
-        case 7:
-        {
-            StartHoldingButton(EventPlayer(),Button.Ultimate);
-        }
-        case 8:
-        {
-            StopHoldingButton(EventPlayer(),Button.Ability1);
-            StopHoldingButton(EventPlayer(),Button.Ability2);
-            StopHoldingButton(EventPlayer(),Button.Crouch);
-            StopHoldingButton(EventPlayer(),Button.Jump);
-            StopHoldingButton(EventPlayer(),Button.Melee);
-            StopHoldingButton(EventPlayer(),Button.PrimaryFire);
-            StopHoldingButton(EventPlayer(),Button.SecondaryFire);
-            StopHoldingButton(EventPlayer(),Button.Ultimate);
-        }
-    }
-    Wait(1/10);
-    Loop();
-}
-*/
 
 rule: "Slow Mode"
 Event.OngoingGlobal
@@ -133,11 +47,22 @@ if(ServerLoadAverage() >= 254)
     SetSlowMotion(100);
 }
 
-
 rule: "Spawn in"
 Event.OngoingPlayer
-if(HeroOf(EventPlayer()) != current_hero)
+if (setup_complete == false || (IsAlive() && is_alive == false) || current_hero != HeroOf(EventPlayer()))
 {
+    setupPlayer();
+    is_alive = true;
+}
+
+rule: "Track Dead"
+Event.OngoingPlayer
+if(is_alive == true && IsDead())
+{
+    is_alive = false;
+}
+
+void setupPlayer() "setup_player" {
     setup_complete = false;
     SetAbility1Enabled(EventPlayer(),true);
     SetAbility2Enabled(EventPlayer(),true);
@@ -149,14 +74,10 @@ if(HeroOf(EventPlayer()) != current_hero)
     role = 0;
     tick_rate = 1/62.5;
     DestroyHudText(zarya_hud_ref);
-    SetKnockbackReceived(EventPlayer(),100);
+    SetKnockbackReceived(EventPlayer(), 80);
     RemoveAllHealthPoolsFromPlayer();
     //remove health pools
     DestroyHudText(debug_text);
-    if(debug_mode)
-    {
-        //debug_text = CreateHudText(EventPlayer(),null,null,"{0}\n{1}\n{2}".Format([$"Current Hero: {HeroOf()}\nStored Hero: {current_hero}\nMax Health: {MaxHealthOfType(EventPlayer(),HealthType.Health)}", $"Max Armor: {MaxHealthOfType(EventPlayer(),HealthType.Armor)}\nMax Shields: {MaxHealthOfType(EventPlayer(),HealthType.Shields)}\nGoal Health: {base_health}", $"Goal Armor: {base_armor}\nGoal Shields: {base_shield}"]),Location.Left,0,Color.White,Color.White,Color.White,HudTextRev.String,Spectators.DefaultVisibility);
-    }
     //CreateHudText(EventPlayer(),"{0}\n{1}\n{2}".Format([ServerLoad(),ServerLoadAverage(),ServerLoadPeak()]),null,null,Location.Left,0,Color.White,Color.White,Color.White,HudTextRev.String,Spectators.VisibleNever);
     if(HeroOf(EventPlayer()) == Hero.Ana)
     {
@@ -199,13 +120,23 @@ if(HeroOf(EventPlayer()) != current_hero)
     armor_tracking = HealthOfType(EventPlayer(),HealthType.Armor);
 }
 
+
+rule: "In Assembling Heroes"
+Event.OngoingPlayer
+if(IsAssemblingHeroes())
+if (current_hero != null)
+{
+    MinWait();
+    current_hero = null;
+    setup_complete = false;
+}
+
 rule: "Inbetween rounds"
 Event.OngoingPlayer
 if(!IsGameInProgress())
 if(IsBetweenRounds())
 {
     Respawn(AllDeadPlayers());
-    AllPlayers().brig_rally_armor_amount = 0;
     Wait(10);
     WaitUntil(IsInSpawnRoom(EventPlayer()),100);
     RemoveAllHealthPoolsFromPlayer();
@@ -215,6 +146,7 @@ if(IsBetweenRounds())
     SetMaxHealth(EventPlayer(),100);
     Heal(EventPlayer(),null,999999);
     setup_complete = false;
+    AllPlayers().current_hero = null;
     current_hero = null;
 }
 
@@ -234,16 +166,9 @@ if(role == 1)
 {
     if(EventWasCriticalHit())
     {
-        //increase headshot damage
-
-        if(armor_tracking > 0)
-        {
-            //armor is involved
+        if(armor_tracking > 0) {
             Damage(Victim(),Attacker(),((EventDamage()+10)*0.25)-10);
-        }
-        else
-        {
-            //no armor
+        } else {
             Damage(Victim(),Attacker(),EventDamage()*0.25);
         }
     }
@@ -251,7 +176,6 @@ if(role == 1)
 
 void apply_custom_health() "apply custom health"
 {   
-    
     SetHealingReceived(EventPlayer(),0);
     RemoveAllHealthPoolsFromPlayer(EventPlayer());
     MinWait();
@@ -272,73 +196,25 @@ void apply_custom_health() "apply custom health"
     Heal(EventPlayer(),null,10000);
     MinWait();
 
-    if (base_health > 0)
-    {
+    if (base_health > 0) {
         health_ref = AddHealthPoolToPlayer(EventPlayer(),HealthType.Health,base_health-1,true,true);
     }
 
-    if (base_armor > 0)
-    {
+    if (base_armor > 0) {
         AddHealthPoolToPlayer(EventPlayer(),HealthType.Armor,base_armor,true,true);
     }
 
-    if (base_shield > 0)
-    {
+    if (base_shield > 0) {
         AddHealthPoolToPlayer(EventPlayer(),HealthType.Shields,base_shield,true,true);
     }
     ClearStatus(EventPlayer(),Status.Unkillable);
     MinWait();
-}
-
-void apply_custom_health_fuction()
-{   
-    SetHealingReceived(EventPlayer(),0);
-    RemoveAllHealthPoolsFromPlayer(EventPlayer());
-    MinWait();
-    SetStatus(EventPlayer(),null,Status.Unkillable,5);
-    MinWait();
-    Damage(EventPlayer(),null,9999999);
-    SetPlayerHealth(EventPlayer(),1);
-    MinWait();
-
-    AddHealthPoolToPlayer(EventPlayer(),HealthType.Health,9999999,true,true);
-    AddHealthPoolToPlayer(EventPlayer(),HealthType.Armor,9999999,true,true);
-    AddHealthPoolToPlayer(EventPlayer(),HealthType.Shields,9999999,true,true);
-
-    MinWait();
-    RemoveAllHealthPoolsFromPlayer(EventPlayer());
-    MinWait();
-    SetHealingReceived(EventPlayer(),100);
-    Heal(EventPlayer(),null,10000);
-    MinWait();
-
-    if (base_health > 0)
-    {
-        health_ref = AddHealthPoolToPlayer(EventPlayer(),HealthType.Health,base_health-1,true,true);
-    }
-
-    if (base_armor > 0)
-    {
-        AddHealthPoolToPlayer(EventPlayer(),HealthType.Armor,base_armor,true,true);
-    }
-
-    if (base_shield > 0)
-    {
-        AddHealthPoolToPlayer(EventPlayer(),HealthType.Shields,base_shield,true,true);
-    }
-    ClearStatus(EventPlayer(),Status.Unkillable);
-    Wait(0.25);
-    //EnableInspectorRecording();
-    //SmallMessage(AllPlayers(),"{0}: Set Health to: {1}".Format([EventPlayer(),MaxHealth()]));
-    //LogToInspector("{0}: Set Health to: {1}".Format([EventPlayer(),MaxHealth()]));
-    //DisableInspectorRecording();
 }
 
 rule: "Average of Average Tracking"
 Event.OngoingGlobal
 {
-    if(ServerLoadAverage() > 50)
-    {
+    if(ServerLoadAverage() > 50) {
         average_value *= average_count;
         average_value += ServerLoadAverage();
         average_count++;
